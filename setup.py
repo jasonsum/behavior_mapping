@@ -11,7 +11,7 @@ setuptools.setup(
     description="Package clusters channel activities or steps according to the transactions offered within a given organization's channel",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="#",
+    url="https://github.com/jasonsum/behavior_mapping",
     classifiers=[
         "Development Status :: 3 - Alpha"
         "Programming Language :: Python :: 3",
