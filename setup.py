@@ -13,14 +13,13 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/jasonsum/behavior_mapping",
     classifiers=[
-        "Development Status :: 3 - Alpha"
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
-        "License :: MIT License",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Topic :: Text Processing"
     ],
-    package_dir={'','behavior_mapper'},
-    #packages=setuptools.find_packages(),
+    packages=['behavior_mapper'],
     python_requires='>=3.8',
     license='MIT',
     install_requires=['pandas','nltk','gensim','numpy','sklearn']
