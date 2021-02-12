@@ -8,7 +8,7 @@ setuptools.setup(
     version="1.2.0.dev1",
     author="Jason Summer",
     author_email="jasummer92@gmail.com",
-    description="Package clusters channel activities or steps according to the transactions offered within a given organization's channel",
+    description="Clusters channel activities or steps according to the transactions offered within a given organization's channel",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jasonsum/behavior_mapping",
@@ -22,6 +22,6 @@ setuptools.setup(
     packages=['behavior_mapper'],
     python_requires='>=3.8',
     license='MIT',
-    install_requires=['pandas','nltk','gensim','numpy','sklearn']
+    install_requires=['pandas','nltk','gensim','numpy','scikit-learn']
     #project_urls={'':'',},
 )
