@@ -1,3 +1,6 @@
+Behavior Mapping
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
 Within the customer experience ecosystem, there is a a plethora of niche forms of analytics that often revolve around understanding and sometimes even predicting customer behavior. 
 Niche offerings, such as journey analytics and real-time orchestration, oftentimes entail deciphering customers' intentions and subsequently driving their action (or inaction).
 However, while driving or encouraging customer action is oftentimes the core of product offerings in the space, the biggest barrier for complex organizations resides
