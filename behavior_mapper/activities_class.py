@@ -111,8 +111,8 @@ class activities(pd.DataFrame):
         return sequence_df
     
     def create_corpus (self,
-                      drop_activities,
-                      min_num,
+                       min_num,
+                      drop_activities = None,
                       remove_repeats = True):
         
         """Creates activity mapping dictionary and dataframe of sequences of activity_ID 
@@ -120,12 +120,12 @@ class activities(pd.DataFrame):
 
         Parameters
         ----------
-        drop_activities : list of strings
-                          List of strings corresponding to undesirable patterns
         min_num : integer
                   Minimum number of steps to retain sequence
         remove_repeats : boolean (default=True)
                          Determination if consecutive repeats of activities in sequences should be reduced to a single occurrence
+        drop_activities : list of strings
+                          List of strings corresponding to undesirable patterns
 
         Returns
         -------
@@ -134,7 +134,7 @@ class activities(pd.DataFrame):
         """
         
         # Remove activities if specified
-        if len(drop_activities) > 0:
+        if drop_activities != None:
             activities_df = self.remove_activities(drop_activities = drop_activities)
         else:
             activities_df = self.reset_index(drop=True)
