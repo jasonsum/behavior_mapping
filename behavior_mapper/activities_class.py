@@ -135,9 +135,9 @@ class activities(pd.DataFrame):
         
         # Remove activities if specified
         if drop_activities != None:
-            activities_df = self.remove_activities(drop_activities = drop_activities)
+            activities_df = self.remove_activities(drop_activities = drop_activities).copy()
         else:
-            activities_df = self.reset_index(drop=True)
+            activities_df = self.reset_index(drop=True).copy()
         
         # Create activity map dictionary and update activities dataframe to include corresponding activity_ID
         activity_map = activities_df.create_dict()
