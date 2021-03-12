@@ -4,7 +4,7 @@ import pandas as pd
 from nltk.tokenize import WhitespaceTokenizer
 from gensim.models import word2vec
 import collections
-from sklearn.cluster import OPTICS
+from sklearn.cluster import DBSCAN
 
 def csv_import (file,
                 ID,
@@ -135,12 +135,9 @@ def fit_sequences (sequence_df,
     
     return activities_features
 
-def optics_cluster (activities_features,
-                    min_samples = 3,
-                    metric = 'euclidean',
-                    max_eps = np.inf,
-                    cluster_method = 'dbscan',
-                    min_cluster_size = 3):
+def dbscan_cluster (activities_features,
+                    min_samples = 2,
+                    eps = .5):
     
     """Performs scikit-learn's OPTICS clustering on activity-feature dictionary 
     
@@ -148,29 +145,21 @@ def optics_cluster (activities_features,
     ----------
     activities_features : dictionary
                           Dictionary of activities and corresponding features from word2vec skip grams model
-    min_samples : integer (default=3)
+    min_samples : integer (default=2)
                   Number of samples in a neighborhood for a point to be considered as a core point
-    metric : string (default='euclidean')
-             Metric to use for distance computation
-    max_eps : float (default=np.info)
+    eps : float (default=n.5)
               Maximum distance between two samples for one to be considered as in the neighborhood of the other
-    cluster_method : string (deafult='dbscan')
-                     Extraction method used to extract clusters 
-    min_cluster_size : integer (default=3)
-                       Minimum number of samples in an OPTICS cluster
     
     Returns
     -------
-    pandas dataframe of activities, skipgrams features, and cluster label from OPTICS
+    pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN
     """
-    # Instantiate and fit OPTICS clustering
-    clustering = OPTICS(min_samples = min_samples,
-                       metric = metric,
-                       max_eps = max_eps,
-                       cluster_method = cluster_method,
-                       min_cluster_size= min_cluster_size).fit(np.array(list((activities_features.values()))))
-    # Create and return dataframe of activity name, features, and cluster label
+
+    # Create dataframe from activity features dictionary
     activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
+    # Instantiate and fit DBSCAN clustering
+    clustering = DBSCAN(min_samples = min_samples, eps = eps).fit(activity_cluster_df)
+    # Create and return dataframe of activity name, features, and cluster label
     activity_cluster_df['cluster'] = clustering.labels_
     
     return activity_cluster_df
