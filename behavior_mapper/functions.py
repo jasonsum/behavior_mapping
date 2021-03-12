@@ -166,7 +166,7 @@ def dbscan_cluster (activities_features,
     return activity_cluster_df
 
 def dim_reduction (activity_cluster_df):
-    """Performs scikit-learn's TSNE to reduce feature dimensionality to 2 and creates scatterplot
+    """Performs scikit-learn's TSNE to reduce feature dimensionality to 2
 
     Parameters
     ----------
