@@ -5,6 +5,7 @@ from nltk.tokenize import WhitespaceTokenizer
 from gensim.models import word2vec
 import collections
 from sklearn.cluster import DBSCAN
+from sklearn.manifold import TSNE
 
 def csv_import (file,
                 ID,
@@ -139,7 +140,7 @@ def dbscan_cluster (activities_features,
                     min_samples = 2,
                     eps = .5):
     
-    """Performs scikit-learn's OPTICS clustering on activity-feature dictionary 
+    """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary 
     
     Parameters
     ----------
@@ -162,4 +163,28 @@ def dbscan_cluster (activities_features,
     # Create and return dataframe of activity name, features, and cluster label
     activity_cluster_df['cluster'] = clustering.labels_
     
+    return activity_cluster_df
+
+def dim_reduction (activity_cluster_df):
+    """Performs scikit-learn's TSNE to reduce feature dimensionality to 2 and creates scatterplot
+
+    Parameters
+    ----------
+    activity_cluster_df : dataframe
+                          Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN
+
+    Returns
+    -------
+    pandas dataframe of activities, skipgrams features, cluster label from DBSCAN, x-value, and y-value
+    """
+
+    # Instantiate and fit TSNE
+    dim_reduction = TSNE(n_components = 2, random_state = 0, n_iter = 1000, perplexity = 2)
+    np.set_printoptions(suppress=True)
+    t_dimensions = dim_reduction.fit_transform(activity_cluster_df.drop('cluster', inplace=False, axis=1))
+
+    # Add x and y coordinate values to activity dataframe
+    activity_cluster_df['x'] = t_dimensions[:,0]
+    activity_cluster_df['y'] = t_dimensions[:,1]
+
     return activity_cluster_df
