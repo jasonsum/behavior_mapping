@@ -39,8 +39,8 @@ def csv_import (file,
 def skip_grams (sequence_df,
                feature_size,
                window = 3,
-               min_activity_count = 0,
-               **kwargs):
+               min_activity_count = 0):
+
     """Vectorizes sequences by blank space and returns skip gram features for 
     each activity_ID in sequences
     
@@ -67,7 +67,7 @@ def skip_grams (sequence_df,
     # Train model on corpus using skip-gram method
     w2v_model = word2vec.Word2Vec(tokenized_corpus, size=feature_size, 
                                      window=window, min_count=min_activity_count,
-                                     sample=1e-5, iter=50, sg=1, **kwargs)
+                                     sg=1, sample=1e-5, iter=50)
 
     # Get unique list of activities
     vocab_activities = [k for k in w2v_model.wv.vocab.keys()]
@@ -109,8 +109,7 @@ def fit_sequences (sequence_df,
                   activity_map,
                   feature_size,
                   window = 3,
-                  min_activity_count = 0,
-                  **kwargs):
+                  min_activity_count = 0):
     """Vectorizes sequences by blank space and returns skip gram features for 
     each activity in sequences in dictionary
     
@@ -134,8 +133,7 @@ def fit_sequences (sequence_df,
     w2v_dict = skip_grams (sequence_df, 
                           feature_size = feature_size, 
                           window = window, 
-                          min_activity_count = min_activity_count,
-                          **kwargs)
+                          min_activity_count = min_activity_count)
     
     # Re-map activity IDs to original activity names using mapping dictionary
     activities_features = merge_dicts (activity_map, w2v_dict)
@@ -144,8 +142,7 @@ def fit_sequences (sequence_df,
 
 def dbscan_cluster (activities_features,
                     min_samples = 2,
-                    eps = .5,
-                    **kwargs):
+                    eps = .5):
     
     """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary 
     
@@ -166,7 +163,7 @@ def dbscan_cluster (activities_features,
     # Create dataframe from activity features dictionary
     activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
     # Instantiate and fit DBSCAN clustering
-    clustering = DBSCAN(min_samples = min_samples, eps = eps, kwargs).fit(activity_cluster_df)
+    clustering = DBSCAN(min_samples = min_samples, eps = eps).fit(activity_cluster_df)
     # Create and return dataframe of activity name, features, and cluster label
     activity_cluster_df['cluster'] = clustering.labels_
     
