@@ -67,7 +67,7 @@ def skip_grams (sequence_df,
     # Train model on corpus using skip-gram method
     w2v_model = word2vec.Word2Vec(tokenized_corpus, size=feature_size, 
                                      window=window, min_count=min_activity_count,
-                                     sample=1e-5, iter=50, sg=1, kwargs)
+                                     sample=1e-5, iter=50, sg=1, **kwargs)
 
     # Get unique list of activities
     vocab_activities = [k for k in w2v_model.wv.vocab.keys()]
@@ -135,7 +135,7 @@ def fit_sequences (sequence_df,
                           feature_size = feature_size, 
                           window = window, 
                           min_activity_count = min_activity_count,
-                          kwargs)
+                          **kwargs)
     
     # Re-map activity IDs to original activity names using mapping dictionary
     activities_features = merge_dicts (activity_map, w2v_dict)
