@@ -120,12 +120,12 @@ def dbscan_cluster (activities_features,
                     eps = .5,
                     **kwargs):
     
-    """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary 
+    """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary or dataframe
     
     Parameters
     ----------
-    activities_features : dictionary
-                          Dictionary of activities and corresponding features from word2vec skip grams model
+    activities_features : dictionary (or dataframe of features)
+                          Dictionary of activities and corresponding features from word2vec skip grams model 
     min_samples : integer (default=2)
                   Number of samples in a neighborhood for a point to be considered as a core point
     eps : float (default=n.5)
@@ -136,8 +136,13 @@ def dbscan_cluster (activities_features,
     pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN
     """
 
-    # Create dataframe from activity features dictionary
-    activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
+    if type(activities_features) == dict:
+      # Create dataframe from activity features dictionary 
+      activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
+    
+    elif type(activities_features) == pd.core.frame.DataFrame:
+      activity_cluster_df = activity_features.copy()
+
     # Instantiate and fit DBSCAN clustering
     clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df)
     # Create and return dataframe of activity name, features, and cluster label
