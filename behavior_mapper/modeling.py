@@ -7,34 +7,6 @@ import collections
 from sklearn.cluster import DBSCAN
 from sklearn.manifold import TSNE
 
-def csv_import (file,
-                ID,
-                activity,
-                timestamp_col):
-    """Imports csv file and creates dataframe indicating the columns corresponding to id, activity, and occurrence time
-    
-    Parameters
-    ----------
-    file : string
-           File path of csv
-    ID : string
-         Column featuring merge key to match session activities
-    activity : string
-               Column featuring user activity
-    timestamp_col : string
-                    Column featuring datetime of activities
-    
-    Returns
-    -------
-    pandas dataframe of merging ID, activity, and timestamp
-    """
-    
-    input_df = pd.read_csv(file,
-                           header=0,
-                           usecols=[ID,activity,timestamp_col],
-                           dtype={ID:'string', activity:'string'},
-                           parse_dates = [timestamp_col])
-    return input_df
 
 def skip_grams (sequence_df,
                feature_size,
