@@ -115,7 +115,35 @@ def fit_sequences (sequence_df,
     
     return activities_features
 
-def dbscan_cluster (activities_features,
+def dim_reduction (activities_features):
+    """Performs scikit-learn's TSNE to reduce feature dimensionality to 2
+
+    Parameters
+    ----------
+    activities_features : dictionary (or dataframe of features)
+                          Dictionary of activities and corresponding features from word2vec skip grams model 
+
+    Returns
+    -------
+    pandas dataframe of activities, skipgrams features, cluster label from DBSCAN, x-value, and y-value
+    """
+
+    # Create dataframe from activity features dictionary 
+    activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
+
+    # Instantiate and fit TSNE
+    dim_reduction = TSNE(n_components = 2, random_state = 0, n_iter = 1000, perplexity = 2)
+    np.set_printoptions(suppress=True)
+    t_dimensions = dim_reduction.fit_transform(activity_cluster_df)
+
+    # Add x and y coordinate values to activity dataframe
+    activity_cluster_df['x'] = t_dimensions[:,0]
+    activity_cluster_df['y'] = t_dimensions[:,1]
+
+    return activity_cluster_df
+
+
+def dbscan_cluster (activity_cluster_df,
                     min_samples = 2,
                     eps = .5,
                     **kwargs):
@@ -124,8 +152,8 @@ def dbscan_cluster (activities_features,
     
     Parameters
     ----------
-    activities_features : dictionary (or dataframe of features)
-                          Dictionary of activities and corresponding features from word2vec skip grams model 
+    activity_cluster_df : dataframe
+                          Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN 
     min_samples : integer (default=2)
                   Number of samples in a neighborhood for a point to be considered as a core point
     eps : float (default=n.5)
@@ -136,40 +164,9 @@ def dbscan_cluster (activities_features,
     pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN
     """
 
-    if type(activities_features) == dict:
-      # Create dataframe from activity features dictionary 
-      activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
-    
-    elif type(activities_features) == pd.core.frame.DataFrame:
-      activity_cluster_df = activity_features.copy()
-
     # Instantiate and fit DBSCAN clustering
-    clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df)
+    clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df[['x','y']])
     # Create and return dataframe of activity name, features, and cluster label
     activity_cluster_df['cluster'] = clustering.labels_
     
-    return activity_cluster_df
-
-def dim_reduction (activity_cluster_df):
-    """Performs scikit-learn's TSNE to reduce feature dimensionality to 2
-
-    Parameters
-    ----------
-    activity_cluster_df : dataframe
-                          Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN
-
-    Returns
-    -------
-    pandas dataframe of activities, skipgrams features, cluster label from DBSCAN, x-value, and y-value
-    """
-
-    # Instantiate and fit TSNE
-    dim_reduction = TSNE(n_components = 2, random_state = 0, n_iter = 1000, perplexity = 2)
-    np.set_printoptions(suppress=True)
-    t_dimensions = dim_reduction.fit_transform(activity_cluster_df.drop('cluster', inplace=False, axis=1))
-
-    # Add x and y coordinate values to activity dataframe
-    activity_cluster_df['x'] = t_dimensions[:,0]
-    activity_cluster_df['y'] = t_dimensions[:,1]
-
     return activity_cluster_df
