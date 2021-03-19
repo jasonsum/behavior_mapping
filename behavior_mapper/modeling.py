@@ -6,6 +6,7 @@ from gensim.models import word2vec
 import collections
 from sklearn.cluster import DBSCAN
 from sklearn.manifold import TSNE
+from sklearn.preprocessing import MinMaxScaler
 
 
 def skip_grams (sequence_df,
@@ -91,6 +92,8 @@ def fit_sequences (sequence_df,
     ----------
     sequence_df : dataframe
                   Pandas dataframe containing sequences of activity_ID
+    activity_map: dictionary
+                  Dictionary of activity and activity_ID 
     feature_size : integer (default=100)
                    Number of dimensions or size of vector to produce for each activity
     window : integer (default=3)
@@ -142,11 +145,41 @@ def dim_reduction (activities_features):
 
     return activity_cluster_df
 
+def add_counts (activity_cluster_df,
+               activity_counts):
+
+    """Scales log of session counts of each activity and merges into activities dataframe
+
+    Parameters
+    ----------
+    activity_cluster_df : dataframe
+                          Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN 
+    activity_counts: dictionary
+                     Dictionary of activity and session counts
+
+    Returns
+    -------
+    pandas dataframe of activities, skipgrams features, x-value, y-value, and activity counts
+    """
+
+    # Map activities to capture unique session ID acount in activities dataframe
+    activity_cluster_df['sess_count'] = activity_cluster_df.index.map(activity_counts)
+
+    # Capture range of existing dimensions for consistent scaling
+    min_value, max_value = activity_cluster_df['x'].min(),activity_cluster_df['x'].max() 
+
+    # Instantiate min_max scaler and fit to count column 
+    activity_cluster_df['sess_count'] = MinMaxScaler(feature_range=(min_value, max_value))\
+                                        .fit_transform(np.log(activity_cluster_df['sess_count'])\
+                                        .to_numpy().reshape(-1,1))
+
+    return activity_cluster_df
 
 def dbscan_cluster (activity_cluster_df,
-                    min_samples = 2,
-                    eps = .5,
-                    **kwargs):
+                   cluster_dims,
+                   min_samples = 2,
+                   eps = .5,
+                   **kwargs):
     
     """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary or dataframe
     
@@ -154,6 +187,8 @@ def dbscan_cluster (activity_cluster_df,
     ----------
     activity_cluster_df : dataframe
                           Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN 
+    cluster_dims : list
+                   Fields of activity_cluster_df to use in clustering, e.g. ['x','y','sess_count']
     min_samples : integer (default=2)
                   Number of samples in a neighborhood for a point to be considered as a core point
     eps : float (default=n.5)
@@ -165,7 +200,7 @@ def dbscan_cluster (activity_cluster_df,
     """
 
     # Instantiate and fit DBSCAN clustering
-    clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df[['x','y']])
+    clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df[cluster_dims])
     # Create and return dataframe of activity name, features, and cluster label
     activity_cluster_df['cluster'] = clustering.labels_
     

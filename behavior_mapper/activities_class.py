@@ -9,7 +9,7 @@ class activities(pd.DataFrame):
         super(activities, self).__init__(*args, **kwargs) 
     
     # Method ensures that other methods return 
-    # instance of custom class isntead of regular DataFrame
+    # instance of custom class instead of regular DataFrame
     @property
     def _constructor(self):
         return activities
@@ -34,9 +34,10 @@ class activities(pd.DataFrame):
         self.reset_index(inplace=True, drop=True)
         return self
     
-    def create_dict (self):
+    def create_dicts (self):
 
         """Creates lookup dictionary for activity mapping with activity and activity_ID
+        and dictionary of activities and their session counts
 
         Parameters
         ----------
@@ -44,10 +45,17 @@ class activities(pd.DataFrame):
         Returns
         -------
         dictionary of activity and activity_ID 
+        dictionary of activity and session counts
         """
 
+        # Create mapping dictionary of activity_ID:activity pairs
         activity_map = self['activity'].drop_duplicates().reset_index(drop=True).to_dict()
-        return activity_map
+
+        # Create count dictionary of activity:session ID count pairs
+        activity_counts = self.groupby('activity')['ID'].nunique().to_dict()
+
+
+        return activity_map, activity_counts
     
     def map_activities (self,
                        activity_map):
@@ -131,6 +139,7 @@ class activities(pd.DataFrame):
         -------
         pandas dataframe containing sequences of activity_ID according to ID and ascending occurrence
         dictionary of activity and activity_ID
+        dictionary of activity and session counts
         """
         
         # Remove activities if specified
@@ -140,9 +149,9 @@ class activities(pd.DataFrame):
             activities_df = self.reset_index(drop=True).copy()
         
         # Create activity map dictionary and update activities dataframe to include corresponding activity_ID
-        activity_map = activities_df.create_dict()
+        activity_map, activity_counts = activities_df.create_dicts()
         activities_df = activities_df.map_activities(activity_map)
         
         # Create sequences of activities
         sequence_df = activities_df.sequence(min_num = min_num, remove_repeats = remove_repeats)
-        return sequence_df, activity_map
+        return sequence_df, activity_map, activity_counts
