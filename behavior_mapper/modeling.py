@@ -10,8 +10,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 def skip_grams (sequence_df,
-               feature_size,
-               window = 3,
+               feature_size = 100,
+               window = 4,
                min_activity_count = 0,
                **kwargs):
 
@@ -24,7 +24,7 @@ def skip_grams (sequence_df,
                   Pandas dataframe containing sequences of activity_ID
     feature_size : integer (default=100)
                    Number of dimensions or size of vector to produce for each activity
-    window : integer (default=3)
+    window : integer (default=4)
              Size of context window for each activity
     min_activity_count : integer (default=0)
                          Minimum number of activity instances to be considered
@@ -81,8 +81,8 @@ def merge_dicts (activity_map,
 
 def fit_sequences (sequence_df,
                   activity_map,
-                  feature_size,
-                  window = 3,
+                  feature_size = 100,
+                  window = 4,
                   min_activity_count = 0,
                   **kwargs):
     """Vectorizes sequences by blank space and returns skip gram features for 
@@ -96,7 +96,7 @@ def fit_sequences (sequence_df,
                   Dictionary of activity and activity_ID 
     feature_size : integer (default=100)
                    Number of dimensions or size of vector to produce for each activity
-    window : integer (default=3)
+    window : integer (default=4)
              Size of context window for each activity
     min_activity_count : integer (default=0)
                          Minimum number of activity instances to be considered
@@ -177,8 +177,8 @@ def add_counts (activity_cluster_df,
 
 def dbscan_cluster (activity_cluster_df,
                    cluster_dims,
-                   min_samples = 2,
-                   eps = .5,
+                   min_samples = 3,
+                   eps = 5,
                    **kwargs):
     
     """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary or dataframe
@@ -189,9 +189,9 @@ def dbscan_cluster (activity_cluster_df,
                           Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN 
     cluster_dims : list
                    Fields of activity_cluster_df to use in clustering, e.g. ['x','y','sess_count']
-    min_samples : integer (default=2)
+    min_samples : integer (default=3)
                   Number of samples in a neighborhood for a point to be considered as a core point
-    eps : float (default=n.5)
+    eps : float (default=5)
               Maximum distance between two samples for one to be considered as in the neighborhood of the other
     
     Returns
