@@ -6,7 +6,7 @@ from gensim.models import word2vec
 import collections
 from sklearn.cluster import DBSCAN
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler # May need to remove this
 
 
 def skip_grams (sequence_df,
@@ -145,7 +145,7 @@ def dim_reduction (activities_features):
 
     return activity_cluster_df
 
-def add_counts (activity_cluster_df,
+def add_volume (activity_cluster_df,
                activity_counts):
 
     """Scales log of session counts of each activity and merges into activities dataframe
@@ -163,15 +163,10 @@ def add_counts (activity_cluster_df,
     """
 
     # Map activities to capture unique session ID acount in activities dataframe
-    activity_cluster_df['sess_count'] = activity_cluster_df.index.map(activity_counts)
+    activity_cluster_df['volume_pctl'] = activity_cluster_df.index.map(activity_counts)
 
-    # Capture range of existing dimensions for consistent scaling
-    min_value, max_value = activity_cluster_df['x'].min(),activity_cluster_df['x'].max() 
-
-    # Instantiate min_max scaler and fit to count column 
-    activity_cluster_df['sess_count'] = MinMaxScaler(feature_range=(min_value, max_value))\
-                                        .fit_transform(np.log(activity_cluster_df['sess_count'])\
-                                        .to_numpy().reshape(-1,1))
+    # Replace absolute volume with percentile rank integer
+    activity_cluster_df['volume_pctl'] = activity_cluster_df['volume_pctl'].rank(pct=True) * 100
 
     return activity_cluster_df
 
