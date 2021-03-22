@@ -6,7 +6,6 @@ from gensim.models import word2vec
 import collections
 from sklearn.cluster import DBSCAN
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import MinMaxScaler # May need to remove this
 
 
 def skip_grams (sequence_df,
