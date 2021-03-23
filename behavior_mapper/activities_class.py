@@ -64,9 +64,13 @@ class activities(pd.DataFrame):
         activities class datframe with rows removed where string matches of drop_activites are found
         """
 
+        assert isinstance(drop_activities,(list,str)), "drop_activities must be a list of strings."
+        if type(drop_activities) == str:
+            drop_activities = [drop_activities]
         pattern_list = '|'.join(tuple(drop_activities))
         self = self[~self['activity'].str.contains(pattern_list, regex=True)]
         self.reset_index(inplace=True, drop=True)
+        assert len(self) > 0, "All activities matched those specified in drop_activities."
         return self
     
     def create_dicts (self):
@@ -108,6 +112,8 @@ class activities(pd.DataFrame):
         """
 
         # Reverse key and value pairs of dictionary to map
+        assert type(activity_map) == dict, "activity_map must be a dictionary of activities."
+        assert len(self['activity'].unique()) == len(activity_map), "Unique activities does not equal those specified in the activity_map."
         dict_reversed = {y:x for x,y in activity_map.items()}
         self['activity_ID'] = self['activity'].map(dict_reversed)
         return self
@@ -129,7 +135,15 @@ class activities(pd.DataFrame):
         pandas dataframe containing sequences of activity_ID according to ID and ascending occurrence
         """
 
-        self.sort_values('occurrence', ascending=True, inplace=True)
+        try:
+            min_num = int(min_num)
+        except TypeError:
+            print("min_num must be an integer.") 
+        try:
+            self.sort_values('occurrence', ascending=True, inplace=True)
+        except TypeError:
+            print("Occurrence column must be a sortable data type.")
+        assert isinstance(remove_repeats, bool), "remove_repeats must be a boolean value"
 
         # Cast activity_ID field as string
         self['activity_ID'] = self['activity_ID'].astype(str)
@@ -154,7 +168,7 @@ class activities(pd.DataFrame):
         return sequence_df
     
     def create_corpus (self,
-                       min_num,
+                      min_num,
                       drop_activities = None,
                       remove_repeats = True):
         
