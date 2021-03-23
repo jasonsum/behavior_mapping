@@ -33,7 +33,11 @@ def skip_grams (sequence_df,
     -------
     dictionary of activity_IDs and corresponding features from word2vec skip grams model
     """
-    
+    assert len(sequence_df) > 0 and 'seq_str' in sequence_df.columns, "sequence_df must contain a 'seq_str' column to tokenize."
+    try:
+        feature_size, window, min_activity_count = int(feature_size), int(window), int(min_activity_count)
+    except TypeError:
+        print("feature_size, window, and min_activity_count must be integers.") 
     tokenizer = WhitespaceTokenizer()
     tokenized_corpus = [tokenizer.tokenize(sequence) for sequence in sequence_df['seq_str']]
 
@@ -66,6 +70,7 @@ def merge_dicts (activity_map,
     dictionary of activity names and corresponding features from word2vec skip grams model
     """
     
+    assert len(activity_map) >= len(w2v_dict), "activity_map must contain the same number or more activity entries than w2v_dict."
     # Cast keys as integer
     w2v_dict = {int(k):v for k,v in w2v_dict.items()}
     
@@ -131,7 +136,15 @@ def dim_reduction (activities_features):
     """
 
     # Create dataframe from activity features dictionary 
-    activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
+
+    try:
+        if isinstance(activities_features, dict) == True:
+            activity_cluster_df = pd.DataFrame.from_dict(activities_features, orient='index')
+
+        if isinstance(activities_features, pd.core.frame.DataFrame) == True:
+            activity_cluster_df = activities_features.copy()
+    except TypeError:
+        print("activities_features should be a dictionary.")
 
     # Instantiate and fit TSNE
     dim_reduction = TSNE(n_components = 2, random_state = 0, n_iter = 1000, perplexity = 2)
@@ -161,6 +174,8 @@ def add_volume (activity_cluster_df,
     pandas dataframe of activities, skipgrams features, x-value, y-value, and activity volume percentiles
     """
 
+    assert isinstance(activity_counts, dict) == True, "activity_counts should be a dictionary."
+    assert len(activity_counts) >= len(activity_cluster_df), "activity_counts must contain the same number or more activity entries than activity_cluster_df."
     # Map activities to capture unique session ID acount in activities dataframe
     activity_cluster_df['volume_pctl'] = activity_cluster_df.index.map(activity_counts)
 
@@ -175,7 +190,7 @@ def dbscan_cluster (activity_cluster_df,
                    eps = 5,
                    **kwargs):
     
-    """Performs scikit-learn's DBSCAN clustering on activity-feature dictionary or dataframe
+    """Performs scikit-learn's DBSCAN clustering on dataframe
     
     Parameters
     ----------
@@ -186,13 +201,18 @@ def dbscan_cluster (activity_cluster_df,
     min_samples : integer (default=3)
                   Number of samples in a neighborhood for a point to be considered as a core point
     eps : float (default=5)
-              Maximum distance between two samples for one to be considered as in the neighborhood of the other
+          Maximum distance between two samples for one to be considered as in the neighborhood of the other
     
     Returns
     -------
     pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN
     """
 
+    assert isinstance(cluster_dims, list) and cluster_dims != None, "cluster_dims must be a list of columns to use for clustering."
+    try:
+        min_samples, eps = int(min_samples), float(eps)
+    except TypeError:
+        print("min_samples and eps must be numeric.") 
     # Instantiate and fit DBSCAN clustering
     clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df[cluster_dims])
     # Create and return dataframe of activity name, features, and cluster label
