@@ -158,7 +158,7 @@ def add_volume (activity_cluster_df,
 
     Returns
     -------
-    pandas dataframe of activities, skipgrams features, x-value, y-value, and activity counts
+    pandas dataframe of activities, skipgrams features, x-value, y-value, and activity volume percentiles
     """
 
     # Map activities to capture unique session ID acount in activities dataframe

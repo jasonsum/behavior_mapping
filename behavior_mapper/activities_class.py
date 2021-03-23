@@ -4,16 +4,51 @@ import pandas as pd
 from itertools import groupby
 
 class activities(pd.DataFrame):                                                                                                                                             
+    """Activities class is a subclass of pandas dataframe with specific fields for ID, activity, and occurrence sequencing. 
+    ID column will be used to merge sessions into sequences of activities.
+    Activity column denotes the transaction or user behavior. 
+    Occurrence column denotes the specific timestamp or sequence of the activitiy.
+    
+    Parameters
+    ----------
+    data : pandas dataframe OR dictionary of pandas dataframe assignments
+           Pandas dataframe containing columns for 'ID', 'activity', and 'occurrence' time. 
+    
+    Examples
+    ----------
+    - If exclusively pandas dataframe is provided, it must contain only 3 columns in order of 'ID', 'activity', 'occurrence'. 
+    activities_instance = activities(input_df)
+    
+    - Columns may be specifically assigned by passing a dictionary with dataframe column assignments for each required column.
+    activities_instance = activities({'ID':input_df['my_ID'],
+                                      'activity':input_df['my_activity'],
+                                      'occurrence':input_df['my_occurrence']})
+
+    Returns
+    -------
+    activities pandas subclass dataframe with columns for ID, activity, and occurrence
+    """
+    
     def __init__(self, *args, **kwargs):                                                                                                                                   
-        kwargs['columns'] = ['ID', 'activity', 'occurrence', 'activity_ID']                                                                                                                        
         super(activities, self).__init__(*args, **kwargs) 
+        try:
+            if type(*args) == dict: # Confirm dict passed has correct column assignments for class
+                data = pd.DataFrame.from_dict(*args)
+                assert data.shape[1] == 3 , "ID, activity, and occurrence columns must be assigned in dictionary."
+                assert set(['ID','activity','occurrence']).issubset(data.columns), "ID, activity, and occurrence columns must be assigned in dictionary."
+            if type(*args) == pd.core.frame.DataFrame: # Update dataframe passed with column assignments for class
+                assert args[0].shape[1] == 3, "ID, activity, and occurrence time must present in dataframe."
+                args[0].columns = ['ID', 'activity', 'occurrence']
+        except TypeError: 
+            print("Input must be a dataframe of 3 columns ordered as ID, activity,\
+                  and occurrence or a dictionary explicitly assigning these 3 columns to those of a dataframe.")
     
     # Method ensures that other methods return 
     # instance of custom class instead of regular DataFrame
     @property
     def _constructor(self):
         return activities
-    
+
     def remove_activities (self,
                           drop_activities):
         

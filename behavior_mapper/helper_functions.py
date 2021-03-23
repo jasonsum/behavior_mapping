@@ -6,7 +6,8 @@ import pandas as pd
 def csv_import (file,
                 ID,
                 activity,
-                timestamp_col):
+                timestamp_col,
+                **kwargs):
     """Imports csv file and creates dataframe indicating the columns corresponding to id, activity, and occurrence time
     
     Parameters
@@ -29,6 +30,7 @@ def csv_import (file,
                            header=0,
                            usecols=[ID,activity,timestamp_col],
                            dtype={ID:'string', activity:'string'},
-                           parse_dates = [timestamp_col])
+                           parse_dates = [timestamp_col],
+                           **kwargs)
     return input_df
 
