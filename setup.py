@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="behavior_mapper",
-    version="1.2.0.dev1",
+    version="1.2.1.dev1",
     author="Jason Summer",
     author_email="jasummer92@gmail.com",
     description="Clusters channel activities or steps according to the transactions offered within a given organization's channel",
