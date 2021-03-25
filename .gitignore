@@ -9,7 +9,11 @@ data/
 __pycache__/
 *.so
 *~
+*.ipynb
 
 # due to using tox and pytest
 .tox
 .cache
+
+# specific files to ignore
+validation.ipynb
