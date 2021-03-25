@@ -20,7 +20,7 @@ def skip_grams (sequence_df,
     Parameters
     ----------
     sequence_df : dataframe
-                  Pandas dataframe containing sequences of activity_ID
+                  Pandas dataframe (from activities.create_corpus func) containing sequences of activity_ID
     feature_size : integer (default=100)
                    Number of dimensions or size of vector to produce for each activity
     window : integer (default=4)
@@ -61,9 +61,9 @@ def merge_dicts (activity_map,
     Parameters
     ----------
     activity_map: dictionary
-                  Dictionary of activity and activity_ID
+                  Dictionary (from activities.create_corpus func) of activity and activity_ID (output from create_dicts func of activities class)
     w2v_dict : dictionary
-               Activity-feature dictionary of activities from w2v model
+               Activity-feature dictionary (from skip_grams func) of activities from w2v model
     
     Returns
     -------
@@ -83,51 +83,12 @@ def merge_dicts (activity_map,
     
     return activities_features
 
-def fit_sequences (sequence_df,
-                  activity_map,
-                  feature_size = 100,
-                  window = 4,
-                  min_activity_count = 0,
-                  **kwargs):
-    """Vectorizes sequences by blank space and returns skip gram features for 
-    each activity in sequences in dictionary
-    
-    Parameters
-    ----------
-    sequence_df : dataframe
-                  Pandas dataframe containing sequences of activity_ID
-    activity_map: dictionary
-                  Dictionary of activity and activity_ID 
-    feature_size : integer (default=100)
-                   Number of dimensions or size of vector to produce for each activity
-    window : integer (default=4)
-             Size of context window for each activity
-    min_activity_count : integer (default=0)
-                         Minimum number of activity instances to be considered
-        
-    Returns
-    -------
-    dictionary of activity_IDs and corresponding features from word2vec skip grams model
-    """
-    
-    # Instantiate and fit word2vec skip grams model
-    w2v_dict = skip_grams (sequence_df, 
-                          feature_size = feature_size, 
-                          window = window, 
-                          min_activity_count = min_activity_count,
-                          **kwargs)
-    
-    # Re-map activity IDs to original activity names using mapping dictionary
-    activities_features = merge_dicts (activity_map, w2v_dict)
-    
-    return activities_features
-
 def dim_reduction (activities_features):
     """Performs scikit-learn's TSNE to reduce feature dimensionality to 2
 
     Parameters
     ----------
-    activities_features : dictionary (or dataframe of features)
+    activities_features : dictionary (or dataframe) of features (from fit_sequences func) 
                           Dictionary of activities and corresponding features from word2vec skip grams model 
 
     Returns
@@ -167,7 +128,7 @@ def add_volume (activity_cluster_df,
     activity_cluster_df : dataframe
                           Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN 
     activity_counts: dictionary
-                     Dictionary of activity and session counts
+                     Dictionary (from activities.create_corpus func) of activity and session counts
 
     Returns
     -------
@@ -184,18 +145,71 @@ def add_volume (activity_cluster_df,
 
     return activity_cluster_df
 
+def fit_sequences (sequence_df,
+                  activity_map,
+                  activity_counts,
+                  feature_size = 100,
+                  window = 4,
+                  min_activity_count = 0,
+                  **skgm_kwargs):
+
+    """Vectorizes sequences by blank space and returns skip gram features for 
+    each activity in sequences in dictionary
+    
+    Parameters
+    ----------
+    sequence_df : dataframe
+                  Pandas dataframe containing sequences of activity_ID
+    activity_map: dictionary
+                  Dictionary of activity and activity_ID 
+    activity_counts: dictionary
+                     Dictionary of activity and session counts
+    feature_size : integer (default=100)
+                   Number of dimensions or size of vector to produce for each activity
+    window : integer (default=4)
+             Size of context window for each activity
+    min_activity_count : integer (default=0)
+                         Minimum number of activity instances to be considered
+
+        
+    Returns
+    -------
+    pandas dataframe of activities, skipgrams features, x-value, y-value, and activity volume percentiles
+    """
+    
+    # Instantiate and fit word2vec skip grams model
+    w2v_dict = skip_grams (sequence_df = sequence_df, 
+                          feature_size = feature_size, 
+                          window = window, 
+                          min_activity_count = min_activity_count,
+                          **skgm_kwargs)
+    
+    # Re-map activity IDs to original activity names using mapping dictionary
+    activities_features = merge_dicts (activity_map = activity_map, 
+                                      w2v_dict = w2v_dict)
+    
+    # Reduce skip_gram features to dataframe and add 2-dimensions of features as x and y-values
+    activity_cluster_df = dim_reduction(activities_features = activities_features)
+
+    # Add session volume percentile column to dataframe
+    activity_cluster_df = add_volume(activity_cluster_df = activity_cluster_df,
+                                    activity_counts = activity_counts)
+
+
+    return activity_cluster_df
+
 def dbscan_cluster (activity_cluster_df,
                    cluster_dims,
                    min_samples = 3,
                    eps = 5,
-                   **kwargs):
+                   **dbscan_kwargs):
     
     """Performs scikit-learn's DBSCAN clustering on dataframe
     
     Parameters
     ----------
     activity_cluster_df : dataframe
-                          Pandas dataframe of activities, skipgrams features, and cluster label from DBSCAN 
+                          Pandas (from fit_sequences func) dataframe of activities, skipgrams features, and cluster label from DBSCAN 
     cluster_dims : list
                    Fields of activity_cluster_df to use in clustering, e.g. ['x','y','sess_count']
     min_samples : integer (default=3)
@@ -214,7 +228,7 @@ def dbscan_cluster (activity_cluster_df,
     except TypeError:
         print("min_samples and eps must be numeric.") 
     # Instantiate and fit DBSCAN clustering
-    clustering = DBSCAN(min_samples = min_samples, eps = eps, **kwargs).fit(activity_cluster_df[cluster_dims])
+    clustering = DBSCAN(min_samples = min_samples, eps = eps, **dbscan_kwargs).fit(activity_cluster_df[cluster_dims])
     # Create and return dataframe of activity name, features, and cluster label
     activity_cluster_df['cluster'] = clustering.labels_
     
