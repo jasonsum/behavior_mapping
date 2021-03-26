@@ -2,7 +2,7 @@
 build/
 dist/
 data/
-private/
+tests/private/
 .DS_Store
 *.egg-info/
 *.egg
