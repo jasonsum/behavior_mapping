@@ -22,6 +22,6 @@ setuptools.setup(
     packages=['behavior_mapper'],
     python_requires='>=3.8',
     license='MIT',
-    install_requires=['pandas','nltk','gensim','numpy','scikit-learn']
+    install_requires=['pandas','nltk','gensim','numpy','scikit-learn', 'unittest', 'glob']
     #project_urls={'':'',},
 )
