@@ -10,7 +10,7 @@ tests/private/
 __pycache__/
 *.so
 *~
-*.ipynb
+#*.ipynb
 
 # due to using tox and pytest
 .tox
@@ -18,3 +18,4 @@ __pycache__/
 
 # specific files to ignore
 validation.ipynb
+walkthrough.ipynb
