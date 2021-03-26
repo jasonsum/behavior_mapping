@@ -154,7 +154,9 @@ def fit_sequences (sequence_df,
                   **skgm_kwargs):
 
     """Vectorizes sequences by blank space and returns skip gram features for 
-    each activity in sequences in dictionary
+    each activity in sequences in dictionary. Replaces activity_ID with activity name.
+    Reduces skip gram features to a 2-dimensional representation. Adds percentile column indicating
+    percentile of session volume for each activity.
     
     Parameters
     ----------
