@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from itertools import groupby
+import pandas.api.types as ptypes
 
 class activities(pd.DataFrame):                                                                                                                                             
     """Activities class is a subclass of pandas dataframe with specific fields for ID, activity, and occurrence sequencing. 
@@ -31,14 +32,19 @@ class activities(pd.DataFrame):
     
     def __init__(self, *args, **kwargs):                                                                                                                                   
         super(activities, self).__init__(*args, **kwargs) 
+
+        def validate_input(self): # Ensure no NaN values, correct column number, and occurrence is appropriate datatype for sorting
+            assert len(self) == len(self.dropna(axis=0, inplace=False)), "NaN values cannot be present"
+            assert ptypes.is_numeric_dtype(self.occurrence) | ptypes.is_datetime64_any_dtype(self.occurrence), "Column indicating occurrence must be a timestamp or numeric."
+            assert self.shape[1] == 3 , "3 columns corresponding to ID, activity, and occurrence columns must be assigned/present."
         try:
             if type(*args) == dict: # Confirm dict passed has correct column assignments for class
                 data = pd.DataFrame.from_dict(*args)
-                assert data.shape[1] == 3 , "ID, activity, and occurrence columns must be assigned in dictionary."
                 assert set(['ID','activity','occurrence']).issubset(data.columns), "ID, activity, and occurrence columns must be assigned in dictionary."
+                validate_input(data)
             if type(*args) == pd.core.frame.DataFrame: # Update dataframe passed with column assignments for class
-                assert args[0].shape[1] == 3, "ID, activity, and occurrence time must present in dataframe."
                 args[0].columns = ['ID', 'activity', 'occurrence']
+                validate_input(args[0])
         except TypeError: 
             print("Input must be a dataframe of 3 columns ordered as ID, activity,\
                   and occurrence or a dictionary explicitly assigning these 3 columns to those of a dataframe.")
