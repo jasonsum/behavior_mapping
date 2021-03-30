@@ -4,13 +4,14 @@ dist/
 data/
 tests/private/
 .DS_Store
+.cache
 *.egg-info/
 *.egg
 *.py[cod]
 __pycache__/
 *.so
 *~
-#*.ipynb
+*.ipynb
 
 # due to using tox and pytest
 .tox
