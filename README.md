@@ -15,6 +15,6 @@ attempting to take out a loan or apply for a mortgage. The steps that comprise t
 Enter, this open-source python package. It provides a method to intelligently distinguish the various user-facing processes that an organization offers to their customers via various channels. For example, a large financial organization may use this package to define the steps that comprise the various actions a customer may take on their website,
 such as paying a bill or transferring funds. It can be used for other high-traffic channels as well, such as IVR and mobile app platforms. 
 
-To begin, an transactional log for a specific channel must be obtained. For large organizations, a single day of customer traffic may suffice. Specifically, the activity log must contain columns identifying the user or user session, the activity performed, and the corresponding timestamp of the activity.
+To begin, a transactional log for a specific channel must be obtained. For large organizations, a single day of customer traffic may suffice. Specifically, the activity log must contain columns identifying the user or user session, the activity performed, and the corresponding timestamp of the activity.
 
 The package provides functions to convert the activity dataset, described above, to a custom class, sequence the activities, fit a word2vec skipgrams, and lastly cluster the distinct activities based on how often they occur together across the user sessions. Activities with the same cluster typically happen together, indicating the steps of cohesive processes in the given channel.
